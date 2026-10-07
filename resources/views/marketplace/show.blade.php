@@ -3,8 +3,17 @@
 @section('content')
 <div class="breadcrumbs"><a href="{{ route('home') }}">Explore</a><span>/</span><a href="{{ route('home', ['category' => $listing->category->slug]) }}">{{ $listing->category->name }}</a><span>/</span>Listing</div>
 <div class="detail-grid">
-    <div class="detail-image product-image tone-{{ $listing->category->icon }}">
-        @if($listing->image_path)<img src="{{ asset('storage/'.$listing->image_path) }}" alt="{{ $listing->title }}">@else<x-product-art :icon="$listing->category->icon"/><span class="illustration-label">Category illustration · no photo provided</span>@endif
+    <div data-listing-gallery>
+        <div class="detail-image product-image tone-{{ $listing->category->icon }}">
+            @if($listing->image_path)<img src="{{ asset('storage/'.$listing->image_path) }}" alt="{{ $listing->title }}" data-gallery-main>@else<x-product-art :icon="$listing->category->icon"/><span class="illustration-label">Category illustration · no photo provided</span>@endif
+        </div>
+        @if($listing->images->count() > 1)
+            <div class="gallery-thumbnails" aria-label="Listing photos">
+                @foreach($listing->images->sortByDesc('is_primary') as $image)
+                    <button type="button" class="gallery-thumbnail" data-gallery-photo data-src="{{ asset('storage/'.$image->image_path) }}" aria-label="View photo {{ $loop->iteration }}{{ $image->is_primary ? ', primary photo' : '' }}" aria-pressed="{{ $image->is_primary ? 'true' : 'false' }}"><img src="{{ asset('storage/'.$image->image_path) }}" alt="" loading="lazy"></button>
+                @endforeach
+            </div>
+        @endif
     </div>
     <div class="detail-copy"><div class="eyebrow">{{ $listing->category->name }}</div><h1>{{ $listing->title }}</h1>
         <div class="detail-price">Rs {{ number_format($listing->price) }}</div>

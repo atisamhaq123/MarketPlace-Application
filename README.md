@@ -23,12 +23,20 @@ You can also register your own account. Demo listings use category illustrations
 - Public listings with text search, city search, category filters, price sorting, and pagination.
 - Registration, login, remembered sessions, logout, and throttled authentication.
 - Seller dashboard with create, edit, mark as sold, and delete.
-- JPG, PNG, and WebP uploads up to 4 MB, with photo preview.
+- Up to 8 JPG, PNG, or WebP photos per listing (4 MB each), with previews, primary-photo selection, and a detail-page gallery.
 - Ownership policies, server-side validation, CSRF protection, and hashed passwords.
 - Seller phone contact for logged-in users.
 - Responsive interface, keyboard focus states, and empty states.
 
 This is a classifieds starter. It does not include checkout, online payments, chat, password reset, or moderation.
+
+## Listing photos
+
+Select several files under **Add photos**, then select **Primary photo** on the photo you want displayed in marketplace cards. You can add more files by opening the picker again and remove new previews before saving. On the edit page, check **Remove photo** to delete a saved photo when you save changes. Removing the primary automatically selects another remaining photo. Removing every photo restores the category illustration.
+
+Buyers can click the thumbnails on a listing to switch photos, or use the arrow keys while a thumbnail is focused. Existing single-photo listings are preserved by the new migration. Run `php artisan migrate` when pulling this update on another machine.
+
+The Windows startup script allows multipart requests up to 40 MB. When using WAMP/Apache or another PHP server, configure `upload_max_filesize=4M`, `post_max_size=40M`, and `max_file_uploads=20` in that server's PHP configuration, then restart it. The application enforces the 8-photo limit.
 
 ## Install on another machine
 
@@ -72,7 +80,8 @@ Tests use an isolated in-memory SQLite database and fake upload storage.
 
 ## Structure
 
-- `app/Models`: User, Category, Listing and their relationships.
+- `app/Models`: User, Category, Listing, ListingImage and their relationships. `listings.image_path` stores the current primary path for cards; `listing_images` stores the full gallery.
+- `app/Services/ListingPhotoService.php`: transactional photo updates and file cleanup.
 - `app/Http/Controllers`: authentication and marketplace flows.
 - `app/Http/Requests/ListingRequest.php`: listing validation and authorization.
 - `app/Policies/ListingPolicy.php`: ownership permissions.

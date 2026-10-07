@@ -13,4 +13,10 @@ if (-not (Test-Path -LiteralPath '.env')) {
 New-Item -ItemType Directory -Force public/css | Out-Null
 Copy-Item -LiteralPath resources/css/app.css -Destination public/css/marketplace.css
 $env:XDEBUG_MODE = 'off'
-& $marketplacePhp artisan serve --host=127.0.0.1 --port=$Port --no-interaction
+Write-Host "MarketPlace: http://127.0.0.1:$Port (Ctrl+C to stop)"
+Push-Location -LiteralPath (Join-Path $PSScriptRoot 'public')
+try {
+    & $marketplacePhp -d upload_max_filesize=4M -d post_max_size=40M -d max_file_uploads=20 -S "127.0.0.1:$Port" (Join-Path $PSScriptRoot 'vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php')
+} finally {
+    Pop-Location
+}

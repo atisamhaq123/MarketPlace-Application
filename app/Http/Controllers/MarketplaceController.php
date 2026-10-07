@@ -5,10 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ListingRequest;
 use App\Models\Category;
 use App\Models\Listing;
+use App\Services\ListingPhotoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -41,7 +41,7 @@ class MarketplaceController extends Controller
 
     public function show(Listing $listing): View
     {
-        $listing->load(['category', 'user']);
+        $listing->load(['category', 'user', 'images']);
 
         return view('marketplace.show', compact('listing'));
     }
@@ -59,44 +59,34 @@ class MarketplaceController extends Controller
     public function edit(Listing $listing): View
     {
         Gate::authorize('update', $listing);
+        $listing->load('images');
 
         return view('marketplace.form', ['listing' => $listing, 'categories' => Category::all()]);
     }
 
-    public function store(ListingRequest $request): RedirectResponse
+    public function store(ListingRequest $request, ListingPhotoService $photos): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-        if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('listings', 'public');
-        }
-        $listing = $request->user()->listings()->create($data);
+        $listing = $request->user()->listings()->make();
+        $photos->save($listing, $request->safe()->except(['image', 'images', 'remove_images', 'primary_image']),
+            $request->hasFile('image') ? [$request->file('image')] : $request->file('images', []),
+            $request->input('remove_images', []), $request->input('primary_image'), $request->hasFile('image'));
 
         return redirect()->route('listings.show', $listing)->with('success', 'Your listing is published.');
     }
 
-    public function update(ListingRequest $request, Listing $listing): RedirectResponse
+    public function update(ListingRequest $request, Listing $listing, ListingPhotoService $photos): RedirectResponse
     {
-        $data = $request->safe()->except('image');
-        $oldImage = $listing->image_path;
-        if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('listings', 'public');
-        }
-        $listing->update($data);
-        if (isset($data['image_path']) && $oldImage) {
-            Storage::disk('public')->delete($oldImage);
-        }
+        $photos->save($listing, $request->safe()->except(['image', 'images', 'remove_images', 'primary_image']),
+            $request->hasFile('image') ? [$request->file('image')] : $request->file('images', []),
+            $request->input('remove_images', []), $request->input('primary_image'), $request->hasFile('image'));
 
         return redirect()->route('dashboard')->with('success', 'Listing updated.');
     }
 
-    public function destroy(Listing $listing): RedirectResponse
+    public function destroy(Listing $listing, ListingPhotoService $photos): RedirectResponse
     {
         Gate::authorize('delete', $listing);
-        $image = $listing->image_path;
-        $listing->delete();
-        if ($image) {
-            Storage::disk('public')->delete($image);
-        }
+        $photos->delete($listing);
 
         return redirect()->route('dashboard')->with('success', 'Listing deleted.');
     }
