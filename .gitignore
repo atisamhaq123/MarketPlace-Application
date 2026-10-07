@@ -1,0 +1,56 @@
+# Dependencies (keep composer.lock and any npm lockfile committed)
+/vendor/
+/node_modules/
+
+# Environment secrets and local credentials
+.env*
+!.env.example
+/auth.json
+/.aws/
+/storage/*.key
+
+# Generated frontend assets and development server files
+/public/build/
+/public/css/marketplace.css
+/public/fonts-manifest.dev.json
+/public/hot
+/public/storage
+
+# Local SQLite databases and their journal/WAL files
+/database/*.sqlite*
+/database/*.db
+/database/*.db-*
+
+# Runtime caches, logs, and uploads are also excluded by Laravel's
+# nested .gitignore files. Keep those placeholders committed.
+*.log
+/storage/pail/
+
+# Test caches and generated reports
+/.phpunit.cache/
+/.phpunit.result.cache
+/coverage/
+/build/coverage/
+/junit.xml
+
+# Local IDE and assistant settings
+/.codex/
+/.cursor/
+/.idea/
+/.nova/
+/.vscode/
+/.zed/
+/.phpactor.json
+/_ide_helper.php
+/_ide_helper_models.php
+/.phpstorm.meta.php
+/Homestead.json
+/Homestead.yaml
+
+# Operating system files and editor temporary files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
