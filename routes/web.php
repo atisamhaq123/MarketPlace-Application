@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\MarketplaceController;
 use Illuminate\Support\Facades\Route;
 
@@ -12,6 +13,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'store'])->middleware('throttle:6,1');
 });
 Route::middleware('auth')->group(function () {
+    Route::get('/messages', [ConversationController::class, 'index'])->name('messages.index');
+    Route::post('/listings/{listing}/messages', [ConversationController::class, 'store'])->middleware('throttle:10,1')->name('messages.start');
+    Route::get('/messages/{conversation}', [ConversationController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{conversation}', [ConversationController::class, 'reply'])->middleware('throttle:30,1')->name('messages.reply');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [MarketplaceController::class, 'dashboard'])->name('dashboard');
     Route::get('/listings/create', [MarketplaceController::class, 'create'])->name('listings.create');

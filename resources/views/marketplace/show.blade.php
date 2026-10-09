@@ -21,6 +21,11 @@
         <hr><h3>A little about this find</h3><p class="description">{{ $listing->description }}</p>
         <div class="seller-card"><div class="avatar">{{ mb_substr($listing->user->name, 0, 1) }}</div><div><strong>{{ $listing->user->name }}</strong><span>Member since {{ $listing->user->created_at->format('M Y') }}</span></div></div>
         @if($listing->status === 'available')
+            @auth
+                @if(auth()->id() !== $listing->user_id)
+                    <form method="POST" action="{{ route('messages.start', $listing) }}" class="message-seller-form">@csrf<button class="button full">Message seller</button></form>
+                @endif
+            @endauth
             @auth<a href="tel:{{ preg_replace('/[^+0-9]/', '', $listing->contact_phone) }}" class="button full">Call seller · {{ $listing->contact_phone }}</a>
             @else<a href="{{ route('login') }}" class="button full">Log in to contact seller ↗</a>@endauth
             <p class="small-note">Arrange pickup directly with the seller. Payments are handled in person.</p>

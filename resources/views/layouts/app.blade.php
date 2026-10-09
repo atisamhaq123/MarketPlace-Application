@@ -17,6 +17,7 @@
         <nav aria-label="Main navigation">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Explore</a>
             @auth
+                <a href="{{ route('messages.index') }}" class="{{ request()->routeIs('messages.*') ? 'active' : '' }}">Messages</a>
                 <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">My listings</a>
                 <form action="{{ route('logout') }}" method="POST">@csrf<button class="text-button">Log out</button></form>
             @else
