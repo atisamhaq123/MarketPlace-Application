@@ -1,6 +1,7 @@
 # Dependencies (keep composer.lock and any npm lockfile committed)
-/vendor/
-/node_modules/
+vendor/
+node_modules/
+composer.phar
 
 # Environment secrets and local credentials
 .env*
